@@ -4,7 +4,7 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "repository": {
-    "url": "https://github.com/michal-wrzosek/react-component-lib",
+    "url": "https://github.com/purple-technology/react-camera-pro",
     "type": "git"
   },
   "author": "Martin Urban <murban@purple-technology.com>",
