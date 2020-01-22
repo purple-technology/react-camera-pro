@@ -34,14 +34,31 @@ var Cam = styled.video(templateObject_3 || (templateObject_3 = __makeTemplateObj
     var mirrored = _a.mirrored;
     return (mirrored ? '180deg' : '0deg');
 });
+var Canvas = styled.canvas(templateObject_4 || (templateObject_4 = __makeTemplateObject(["\n  display: none;\n"], ["\n  display: none;\n"])));
 var Camera = React.forwardRef(function (_a, ref) {
     var _b = _a.facingMode, facingMode = _b === void 0 ? 'user' : _b, _c = _a.aspectRatio, aspectRatio = _c === void 0 ? 'cover' : _c;
     var player = useRef(null);
+    var canvas = useRef(null);
     var _d = useState(null), stream = _d[0], setStream = _d[1];
     var _e = useState(facingMode), currentFacingMode = _e[0], setFacingMode = _e[1];
     useImperativeHandle(ref, function () { return ({
         takePhoto: function () {
-            console.log('TAKE photo');
+            var _a, _b, _c, _d, _e, _f;
+            if ((_a = canvas) === null || _a === void 0 ? void 0 : _a.current) {
+                var width = ((_c = (_b = player) === null || _b === void 0 ? void 0 : _b.current) === null || _c === void 0 ? void 0 : _c.videoWidth) || 1280;
+                var height = ((_e = (_d = player) === null || _d === void 0 ? void 0 : _d.current) === null || _e === void 0 ? void 0 : _e.videoHeight) || 720;
+                canvas.current.width = width;
+                canvas.current.height = height;
+                var context = canvas.current.getContext('2d');
+                if (context && ((_f = player) === null || _f === void 0 ? void 0 : _f.current)) {
+                    context.drawImage(player.current, 0, 0, width, height);
+                }
+                var imgData = canvas.current.toDataURL('image/jpeg');
+                return imgData;
+            }
+            else {
+                throw new Error('Canvas is not supported');
+            }
         },
         switchCamera: function () {
             setFacingMode(currentFacingMode === 'user' ? 'environment' : 'user');
@@ -57,7 +74,8 @@ var Camera = React.forwardRef(function (_a, ref) {
     }, [stream]);
     return (React.createElement(Container, { aspectRatio: aspectRatio },
         React.createElement(Wrapper, null,
-            React.createElement(Cam, { ref: player, id: "video", muted: true, autoPlay: true, playsInline: true, mirrored: currentFacingMode === 'user' ? true : false }))));
+            React.createElement(Cam, { ref: player, id: "video", muted: true, autoPlay: true, playsInline: true, mirrored: currentFacingMode === 'user' ? true : false }),
+            React.createElement(Canvas, { ref: canvas }))));
 });
 Camera.displayName = 'Camera';
 var initCameraStream = function (stream, setStream, currentFacingMode) {
@@ -95,7 +113,7 @@ var handleError = function (error) {
         throw new Error('Permission denied. Please refresh and give camera permission.');
     }
 };
-var templateObject_1, templateObject_2, templateObject_3;
+var templateObject_1, templateObject_2, templateObject_3, templateObject_4;
 //# sourceMappingURL=Camera.js.map
 
 export { Camera };

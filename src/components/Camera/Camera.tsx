@@ -32,6 +32,10 @@ const Cam = styled.video<any>`
   transform: rotateY(${({ mirrored }) => (mirrored ? '180deg' : '0deg')});
 `;
 
+const Canvas = styled.canvas`
+  display: none;
+`;
+
 type FacingMode = 'user' | 'environment';
 
 export interface CameraProps {
@@ -44,12 +48,29 @@ type SetStream = React.Dispatch<React.SetStateAction<Stream>>;
 
 export const Camera = React.forwardRef<unknown, CameraProps>(({ facingMode = 'user', aspectRatio = 'cover' }, ref) => {
   const player = useRef<HTMLVideoElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<Stream>(null);
   const [currentFacingMode, setFacingMode] = useState<FacingMode>(facingMode);
 
   useImperativeHandle(ref, () => ({
     takePhoto: () => {
-      console.log('TAKE photo');
+      if (canvas?.current) {
+        const width = player?.current?.videoWidth || 1280;
+        const height = player?.current?.videoHeight || 720;
+
+        canvas.current.width = width;
+        canvas.current.height = height;
+
+        const context = canvas.current.getContext('2d');
+        if (context && player?.current) {
+          context.drawImage(player.current, 0, 0, width, height);
+        }
+
+        const imgData = canvas.current.toDataURL('image/jpeg');
+        return imgData;
+      } else {
+        throw new Error('Canvas is not supported');
+      }
     },
     switchCamera: () => {
       setFacingMode(currentFacingMode === 'user' ? 'environment' : 'user');
@@ -77,6 +98,7 @@ export const Camera = React.forwardRef<unknown, CameraProps>(({ facingMode = 'us
           playsInline={true}
           mirrored={currentFacingMode === 'user' ? true : false}
         ></Cam>
+        <Canvas ref={canvas} />
       </Wrapper>
     </Container>
   );

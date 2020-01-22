@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Camera } from './Camera';
+import { url } from 'inspector';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -82,23 +83,29 @@ const ChangeFacingCameraButton = styled(Button)`
   height: 40px;
 `;
 
-const SpaceHolder = styled.span`
-  width: 40px;
-  height: 40px;
+const ImagePreview = styled.div<any>`
+  width: 80px;
+  height: 80px;
+  ${({ image }) => (image ? `background-image:  url(${image});` : '')}
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 `;
 
 const App = () => {
+  const [image, setImage] = useState<string | null>(null);
   const camera = useRef<any>(null);
 
   return (
     <Wrapper>
       <Camera ref={camera} />
       <Control>
-        <SpaceHolder />
+        <ImagePreview image={image} />
         <TakePhotoButton
           onClick={() => {
             const photo = camera.current.takePhoto();
             console.log(photo);
+            setImage(photo);
           }}
         />
         <ChangeFacingCameraButton
