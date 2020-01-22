@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Camera } from './Camera';
-import { url } from 'inspector';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -24,7 +23,7 @@ const Control = styled.div`
   justify-content: space-between;
   padding: 50px;
   box-sizing: border-box;
-  flex-direction: column;
+  flex-direction: column-reverse;
 
   @media (max-aspect-ratio: 1/1) {
     flex-direction: row;
@@ -84,8 +83,8 @@ const ChangeFacingCameraButton = styled(Button)`
 `;
 
 const ImagePreview = styled.div<any>`
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   ${({ image }) => (image ? `background-image:  url(${image});` : '')}
   background-size: contain;
   background-repeat: no-repeat;
