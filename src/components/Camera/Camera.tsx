@@ -41,72 +41,120 @@ type FacingMode = 'user' | 'environment';
 export interface CameraProps {
   facingMode?: FacingMode;
   aspectRatio?: 'cover' | number; // for example 16/9, 4/3, 1/1
+  numberOfCamerasCallback?(numberOfCameras: number): void;
 }
 
 type Stream = MediaStream | null;
 type SetStream = React.Dispatch<React.SetStateAction<Stream>>;
+type SetNumberOfCameras = React.Dispatch<React.SetStateAction<number>>;
 
-export const Camera = React.forwardRef<unknown, CameraProps>(({ facingMode = 'user', aspectRatio = 'cover' }, ref) => {
-  const player = useRef<HTMLVideoElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const [stream, setStream] = useState<Stream>(null);
-  const [currentFacingMode, setFacingMode] = useState<FacingMode>(facingMode);
+export const Camera = React.forwardRef<unknown, CameraProps>(
+  ({ facingMode = 'user', aspectRatio = 'cover', numberOfCamerasCallback = () => null }, ref) => {
+    const player = useRef<HTMLVideoElement>(null);
+    const canvas = useRef<HTMLCanvasElement>(null);
+    const container = useRef<HTMLDivElement>(null);
+    const [numberOfCameras, setNumberOfCameras] = useState<number>(0);
+    const [stream, setStream] = useState<Stream>(null);
+    const [currentFacingMode, setFacingMode] = useState<FacingMode>(facingMode);
 
-  useImperativeHandle(ref, () => ({
-    takePhoto: () => {
-      if (canvas?.current) {
-        const width = player?.current?.videoWidth || 1280;
-        const height = player?.current?.videoHeight || 720;
+    useEffect(() => {
+      numberOfCamerasCallback(numberOfCameras);
+    }, [numberOfCameras]);
 
-        canvas.current.width = width;
-        canvas.current.height = height;
-
-        const context = canvas.current.getContext('2d');
-        if (context && player?.current) {
-          context.drawImage(player.current, 0, 0, width, height);
+    useImperativeHandle(ref, () => ({
+      takePhoto: () => {
+        if (numberOfCameras < 1) {
+          throw new Error("There isn't any video device accessible.");
         }
 
-        const imgData = canvas.current.toDataURL('image/jpeg');
-        return imgData;
-      } else {
-        throw new Error('Canvas is not supported');
+        if (canvas?.current) {
+          const playerWidth = player?.current?.videoWidth || 1280;
+          const playerHeight = player?.current?.videoHeight || 720;
+          const playerAR = playerWidth / playerHeight;
+
+          const canvasWidth = container?.current?.offsetWidth || 1280;
+          const canvasHeight = container?.current?.offsetHeight || 1280;
+          const canvasAR = canvasWidth / canvasHeight;
+
+          let sX, sY, sW, sH;
+
+          if (playerAR > canvasAR) {
+            sH = playerHeight;
+            sW = playerHeight * canvasAR;
+            sX = (playerWidth - sW) / 2;
+            sY = 0;
+          } else {
+            sW = playerWidth;
+            sH = playerWidth / canvasAR;
+            sX = 0;
+            sY = (playerHeight - sH) / 2;
+          }
+
+          canvas.current.width = sW;
+          canvas.current.height = sH;
+
+          const context = canvas.current.getContext('2d');
+          if (context && player?.current) {
+            context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
+          }
+
+          const imgData = canvas.current.toDataURL('image/jpeg');
+          return imgData;
+        } else {
+          throw new Error('Canvas is not supported');
+        }
+      },
+      switchCamera: () => {
+        if (numberOfCameras < 1) {
+          throw new Error("There isn't any video device accessible.");
+        } else if (numberOfCameras < 2) {
+          console.warn(
+            'It is not possible to switch camera to different one, because there is only one video device accessible.',
+          );
+        }
+        const newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+        setFacingMode(newFacingMode);
+        return newFacingMode;
+      },
+      getNumberOfCameras: () => {
+        return numberOfCameras;
+      },
+    }));
+
+    useEffect(() => initCameraStream(stream, setStream, currentFacingMode, setNumberOfCameras), [currentFacingMode]);
+
+    useEffect(() => {
+      if (stream && player && player.current) {
+        player.current.srcObject = stream;
       }
-    },
-    switchCamera: () => {
-      setFacingMode(currentFacingMode === 'user' ? 'environment' : 'user');
-    },
-  }));
+    }, [stream]);
 
-  useEffect(() => initCameraStream(stream, setStream, currentFacingMode), [currentFacingMode]);
-
-  useEffect(() => {
-    console.log('player');
-    if (stream && player && player.current) {
-      console.log('stream');
-      player.current.srcObject = stream;
-    }
-  }, [stream]);
-
-  return (
-    <Container aspectRatio={aspectRatio}>
-      <Wrapper>
-        <Cam
-          ref={player}
-          id="video"
-          muted={true}
-          autoPlay={true}
-          playsInline={true}
-          mirrored={currentFacingMode === 'user' ? true : false}
-        ></Cam>
-        <Canvas ref={canvas} />
-      </Wrapper>
-    </Container>
-  );
-});
+    return (
+      <Container ref={container} aspectRatio={aspectRatio}>
+        <Wrapper>
+          <Cam
+            ref={player}
+            id="video"
+            muted={true}
+            autoPlay={true}
+            playsInline={true}
+            mirrored={currentFacingMode === 'user' ? true : false}
+          ></Cam>
+          <Canvas ref={canvas} />
+        </Wrapper>
+      </Container>
+    );
+  },
+);
 
 Camera.displayName = 'Camera';
 
-const initCameraStream = (stream: Stream, setStream: SetStream, currentFacingMode: FacingMode) => {
+const initCameraStream = (
+  stream: Stream,
+  setStream: SetStream,
+  currentFacingMode: FacingMode,
+  setNumberOfCameras: SetNumberOfCameras,
+) => {
   // stop any active streams in the window
   if (stream) {
     stream.getTracks().forEach(track => {
@@ -118,29 +166,33 @@ const initCameraStream = (stream: Stream, setStream: SetStream, currentFacingMod
     audio: false,
     video: {
       facingMode: currentFacingMode,
+      width: { ideal: 1920 },
+      height: { ideal: 1920 },
     },
   };
 
   navigator.mediaDevices
     .getUserMedia(constraints)
     .then(stream => {
-      setStream(handleSuccess(stream));
+      setStream(handleSuccess(stream, setNumberOfCameras));
     })
     .catch(handleError);
 };
 
-const handleSuccess = (stream: MediaStream) => {
+const handleSuccess = (stream: MediaStream, setNumberOfCameras: SetNumberOfCameras) => {
   const track = stream.getVideoTracks()[0];
   const settings = track.getSettings();
   const str = JSON.stringify(settings, null, 4);
-  console.log('settings ' + str);
+  console.log('Camera settings ' + str);
+  navigator.mediaDevices
+    .enumerateDevices()
+    .then(r => setNumberOfCameras(r.filter(i => i.kind === 'videoinput').length));
 
   return stream;
-  //return navigator.mediaDevices.enumerateDevices();
 };
 
 const handleError = (error: Error) => {
-  console.log(error);
+  console.error(error);
 
   //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
   if (error.name === 'PermissionDeniedError') {

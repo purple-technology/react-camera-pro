@@ -73,7 +73,7 @@ const TakePhotoButton = styled(Button)`
   }
 `;
 
-const ChangeFacingCameraButton = styled(Button)`
+const ChangeFacingCameraButton = styled(Button)<any>`
   background: url(https://img.icons8.com/ios/50/000000/switch-camera.png);
   background-position: center;
   background-size: 40px;
@@ -89,15 +89,21 @@ const ImagePreview = styled.div<any>`
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+
+  @media (max-width: 400px) {
+    width: 50px;
+    height: 120px;
+  }
 `;
 
 const App = () => {
+  const [numberOfCameras, setNumberOfCameras] = useState(0);
   const [image, setImage] = useState<string | null>(null);
   const camera = useRef<any>(null);
 
   return (
     <Wrapper>
-      <Camera ref={camera} />
+      <Camera ref={camera} aspectRatio="cover" numberOfCamerasCallback={setNumberOfCameras} />
       <Control>
         <ImagePreview image={image} />
         <TakePhotoButton
@@ -108,6 +114,7 @@ const App = () => {
           }}
         />
         <ChangeFacingCameraButton
+          hidden={numberOfCameras <= 1}
           onClick={() => {
             const result = camera.current.switchCamera();
             console.log(result);

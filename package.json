@@ -1,6 +1,6 @@
 {
   "name": "react-camera-pro",
-  "version": "1.0.0",
+  "version": "0.0.2-alpha",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "repository": {
@@ -43,7 +43,7 @@
     "build": "rollup -c",
     "build-watch": "rollup -c -w",
     "prepublishOnly": "npm run build",
-    "postinstall": "install-peers -f && cd example && npm i",
+    "prepare": "install-peers -f && cd example && npm i",
     "start-example": "cd example && npm start",
     "deploy-example": "cd example && npm run deploy",
     "dev": "concurrently --kill-others \"npm run build-watch\" \"npm run start-example\"",
