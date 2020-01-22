@@ -4,7 +4,7 @@ Mobile first camera component for React.
 Thanks for boilerplate to:
 https://medium.com/@xfor/developing-publishing-react-component-library-to-npm-styled-components-typescript-cc8274305f5a
 
-Thanks for mobileCameraTmplate to:
+Thanks for Camera Template to:
 https://www.kasperkamperman.com/blog/camera-template/
 
 ## Installation:
