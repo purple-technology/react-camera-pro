@@ -36,7 +36,6 @@ var Cam = styled.video(templateObject_3 || (templateObject_3 = __makeTemplateObj
 });
 var Canvas = styled.canvas(templateObject_4 || (templateObject_4 = __makeTemplateObject(["\n  display: none;\n"], ["\n  display: none;\n"])));
 var templateObject_1, templateObject_2, templateObject_3, templateObject_4;
-//# sourceMappingURL=styles.js.map
 
 var Camera = React.forwardRef(function (_a, ref) {
     var _b = _a.facingMode, facingMode = _b === void 0 ? 'user' : _b, _c = _a.aspectRatio, aspectRatio = _c === void 0 ? 'cover' : _c, _d = _a.numberOfCamerasCallback, numberOfCamerasCallback = _d === void 0 ? function () { return null; } : _d;
@@ -154,6 +153,5 @@ var handleError = function (error) {
         throw new Error('Permission denied. Please refresh and give camera permission.');
     }
 };
-//# sourceMappingURL=Camera.js.map
 
 export { Camera };
