@@ -88,7 +88,7 @@ const ChangeFacingCameraButton = styled(Button)`
   height: 40px;
   padding: 40px;
   &:disabled {
-    opacity: 1;
+    opacity: 0;
     cursor: default;
   }
   @media (max-width: 400px) {
