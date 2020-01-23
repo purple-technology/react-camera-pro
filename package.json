@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
+  "keywords": ["camera", "webcam", "cam", "react", "ios", "android", "mobile", "webRTC"],
   "repository": {
     "url": "https://github.com/purple-technology/react-camera-pro",
     "type": "git"
   },
+  "homepage": "https://github.com/purple-technology/react-camera-pro#readme",
   "author": "Martin Urban <murban@purple-technology.com>",
   "license": "MIT",
   "types": "dist/index.d.ts",

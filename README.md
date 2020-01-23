@@ -1,11 +1,13 @@
-![downloads][downloads-badge]
 ![npm][npm-badge]
+![downloads][downloads-badge]
 
 # react-camera-pro
 
 Universal Camera component for React. 
+
 Designed with focus on Android and iOS cameras. 
 Works with standards webcams as well.
+
 See [this](http://caniuse.com/#feat=stream) for browser compatibility.
 
 Note: WebRTC is only supported on secure connections. So you need to serve it from https. You can test and debug in Chrome from localhost though (this doesn't work in Safari).
@@ -76,6 +78,7 @@ export Component;
 - `getNumberOfCameras(): number` - Returns number of available cameras.
 
 [See demo](https://purple-technology.github.io/react-camera-pro/)
+
 [See example code](https://github.com/purple-technology/react-camera-pro/blob/8290b1319d7436c77403784fe845060f6c4ed3bd/example/src/App.tsx#L120)
 
 ```javascript
