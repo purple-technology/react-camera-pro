@@ -1,4 +1,5 @@
 ![downloads][downloads-badge]
+![npm][npm-badge]
 
 # react-camera-pro
 
@@ -133,3 +134,4 @@ const Component = () => {
 MIT
 
 [downloads-badge]: https://img.shields.io/npm/dw/react-camera-pro.svg?style=flat-square
+[npm-badge]: https://img.shields.io/npm/v/react-camera-pro
