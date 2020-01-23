@@ -1,4 +1,3 @@
-[![Build Status][build-badge]][build]
 ![downloads][downloads-badge]
 
 # react-camera-pro
@@ -133,6 +132,4 @@ const Component = () => {
 
 MIT
 
-[build-badge]: https://img.shields.io/travis/com/purple-technology/react-camera-pro.svg?style=flat-square
-[build]: https://travis-ci.com/purple-technology/react-camera-pro
-[downloads-badge]: https://img.shields.io/npm/dw/react-cmera-pro.svg?style=flat-square
+[downloads-badge]: https://img.shields.io/npm/dw/react-camera-pro.svg?style=flat-square
