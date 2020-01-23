@@ -1,30 +1,139 @@
+[![Build Status][build-badge]][build]
+![downloads][downloads-badge]
+
 # react-camera-pro
-Mobile first camera component for React. 
 
-Thanks for boilerplate to:
-https://medium.com/@xfor/developing-publishing-react-component-library-to-npm-styled-components-typescript-cc8274305f5a
+Universal Camera component for React. 
+Designed with focus on Android and iOS cameras. 
+Works with standards webcams as well.
+See [this](http://caniuse.com/#feat=stream) for browser compatibility.
 
-Thanks for Camera Template to:
-https://www.kasperkamperman.com/blog/camera-template/
+Note: WebRTC is only supported on secure connections. So you need to serve it from https. You can test and debug in Chrome from localhost though (this doesn't work in Safari).
 
-## Installation:
+## Features
+- mobile friendly camera solution (tested on iOS and Android)
+- video element is fully responsive
+  - you can setup parameter to cover your container
+  - you can define aspectRatio of view: 16/9, 4/3, 1/1, ...
+- taking photo to base64 jpeg file - with same aspect Ratio as view, with FullHD resolution (or maximum supported by camera).
+- working with standard webcams or other video input devices
+- supports autofocus
+- switching facing/environment cameras (with your own button)
+- detect number of cameras
+- facing camera is mirrored, environment is not
+- controlled by react [Ref](https://reactjs.org/docs/refs-and-the-dom.html)
+- public functions to take photo, to switch camera and to get number of cameras
+- typescript library
 
-To install all dependencies run:
+## Installation
 
 ```
-npm i
+npm install --save react-camera-pro
 ```
 
-It will install:
+## Demo
 
-- `dependencies` and `devDependencies` from ./package.json
-- `peerDependencies` from ./package.json thanks to `install-peers-cli`
-- `dependencies` and `devDependencies` from ./example/package.json (example `create react app` for testing)
+https://purple-technology.github.io/react-camera-pro/
 
-## Develoment:
+## Example
 
-To start developing your library, run `npm run dev`. It will build your library and run example `create-react-app` where you can test your components. Each time you make changes to your library or example app, app will be reloaded to reflect your changes.
+https://github.com/purple-technology/react-camera-pro/blob/master/example/src/App.tsx
 
-## Styled-components:
+## Usage
 
-Developing library with components built with styled-components is challenging because you have to keep only one instance of styled-components. If you would just symlink your library (`file:../` or `npm link`) to example app that is also using styled-components you'll get a console warning about multiple instances of styled-components (even though styled-components are peer dependency) and your styles will be possibly broken. To be able to conveniently develop styled components I am injecting bundled files directly into example app's /src folder and importing it in App.tsx along with type declaration.
+```javascript
+import React, { useState, useRef } from "react";
+import {Camera} from "react-camera-pro";
+
+const Component = () => {
+  const camera = useRef(null);
+  const [image, setImage] = useState(null);
+  
+  return (
+    <div>
+      <Camera ref={camera} />
+      <button onClick={() => setImage(camera.current.takePhoto())}>Take photo</button>
+      <img src={image} alt='Taken photo'/>
+    </div>
+  );
+}
+
+export Component;
+```
+
+### Props
+
+| prop                    | type                             | default      | notes                                          |
+| ----------------------- | -------------------------------- | ------------ | ---------------------------------------------- |
+| facingMode              | `'user'\|'environment'`          | `'user'`     | default camera - 'user' or 'environment'       |
+| aspectRatio             | `'cover'\|number`                | `'cover'`    | aspect ratio of video (16/9, 4/3);             |
+| numberOfCamerasCallback | `(numberOfCameras: number):void` | `() => null` | callback is called if number of cameras change |
+
+### Methods
+
+- `takePhoto(): string`    - Returns a base64 encoded string of the taken image.
+- `switchCamera(): 'user'|'environment'` - Switches the camera - user to environment or environment to user. Returns the new value 'user' or 'environment'.
+- `getNumberOfCameras(): number` - Returns number of available cameras.
+
+[See demo](https://purple-technology.github.io/react-camera-pro/)
+[See example code](https://github.com/purple-technology/react-camera-pro/blob/8290b1319d7436c77403784fe845060f6c4ed3bd/example/src/App.tsx#L120)
+
+```javascript
+
+const Component = () => {
+  const camera = useRef(null);
+  const [numberOfCameras, setNumberOfCameras] = useState(0);
+  const [image, setImage] = useState(null);
+  
+  //...
+  
+  return (
+    <Camera ref={camera} numberOfCamerasCallback={setNumberOfCameras} />
+      <img src={image} alt='Image preview' />
+      <button
+        onClick={() => {
+            const photo = camera.current.takePhoto();
+            setImage(photo);
+        }}
+      />
+      <button
+        hidden={numberOfCameras <= 1}
+        onClick={() => {
+          camera.current.switchCamera();
+        }}
+      />
+  )
+```
+
+## Camera options
+
+### User/Enviroment camera
+
+```javascript
+  const Cam = () => <Camera ref={camera} facingMode='environment'} />
+```
+
+### Aspect ratio
+
+```javascript
+  const Cam = () => <Camera ref={camera} aspectRatio={16/9} />
+```
+
+## Using within an iframe
+```
+<iframe src="https://example.com/camera-pro-iframe" allow="camera;"/>
+```
+
+## Credits
+
+- Thanks for boilerplate to: https://medium.com/@xfor/developing-publishing-react-component-library-to-npm-styled-components-typescript-cc8274305f5a
+- Thanks for Camera Template to: https://www.kasperkamperman.com/blog/camera-template/
+
+## License
+
+MIT
+
+
+[build-badge]: https://img.shields.io/travis/com/mozmorris/react-camera-pro.svg?style=flat-square
+[build]: https://travis-ci.com/mozmorris/react-camera-pro
+[downloads-badge]: https://img.shields.io/npm/dw/react-cmera-pro.svg?style=flat-square
