@@ -1,52 +1,6 @@
 import React, { useState, useEffect, useRef, useImperativeHandle } from 'react';
-import styled from 'styled-components';
-
-const Wrapper = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`;
-
-const Container = styled.div<any>`
-  width: 100%;
-  ${({ aspectRatio }) =>
-    aspectRatio === 'cover'
-      ? `
-      position: absolute;
-      bottom: 0
-      top: 0
-      left: 0
-      right: 0`
-      : `
-      position: relative;
-      padding-bottom: ${100 / aspectRatio}%;`}
-`;
-
-const Cam = styled.video<any>`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  transform: rotateY(${({ mirrored }) => (mirrored ? '180deg' : '0deg')});
-`;
-
-const Canvas = styled.canvas`
-  display: none;
-`;
-
-type FacingMode = 'user' | 'environment';
-
-export interface CameraProps {
-  facingMode?: FacingMode;
-  aspectRatio?: 'cover' | number; // for example 16/9, 4/3, 1/1
-  numberOfCamerasCallback?(numberOfCameras: number): void;
-}
-
-type Stream = MediaStream | null;
-type SetStream = React.Dispatch<React.SetStateAction<Stream>>;
-type SetNumberOfCameras = React.Dispatch<React.SetStateAction<number>>;
+import { CameraProps, FacingMode, Stream, SetStream, SetNumberOfCameras } from './types';
+import { Container, Wrapper, Canvas, Cam } from './styles';
 
 export const Camera = React.forwardRef<unknown, CameraProps>(
   ({ facingMode = 'user', aspectRatio = 'cover', numberOfCamerasCallback = () => null }, ref) => {

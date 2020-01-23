@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { Camera } from './Camera';
+import { Camera, CameraType } from './Camera';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -15,6 +15,8 @@ const Control = styled.div`
   display: flex;
   right: 0;
   width: 20%;
+  min-width: 130px;
+  min-height: 130px;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
   z-index: 10;
@@ -30,6 +32,10 @@ const Control = styled.div`
     bottom: 0;
     width: 100%;
     height: 20%;
+  }
+
+  @media (max-width: 400px) {
+    padding: 10px;
   }
 `;
 
@@ -59,30 +65,38 @@ const Button = styled.button`
 `;
 
 const TakePhotoButton = styled(Button)`
-  background: url("https://img.icons8.com/ios/50/000000/compact-camera.png");
+  background: url('https://img.icons8.com/ios/50/000000/compact-camera.png');
   background-position: center;
   background-size: 50px;
   background-repeat: no-repeat;
   width: 80px;
-  height: 80px
+  height: 80px;
   border: solid 4px black;
   border-radius: 50%;
 
   &:hover {
-    background-color: rgba(0,0,0,0.3)
+    background-color: rgba(0, 0, 0, 0.3);
   }
 `;
 
-const ChangeFacingCameraButton = styled(Button)<any>`
+const ChangeFacingCameraButton = styled(Button)`
   background: url(https://img.icons8.com/ios/50/000000/switch-camera.png);
   background-position: center;
   background-size: 40px;
   background-repeat: no-repeat;
   width: 40px;
   height: 40px;
+  padding: 40px;
+  &:disabled {
+    opacity: 1;
+    cursor: default;
+  }
+  @media (max-width: 400px) {
+    padding: 40px 5px;
+  }
 `;
 
-const ImagePreview = styled.div<any>`
+const ImagePreview = styled.div<{ image: string | null }>`
   width: 120px;
   height: 120px;
   ${({ image }) => (image ? `background-image:  url(${image});` : '')}
@@ -99,7 +113,7 @@ const ImagePreview = styled.div<any>`
 const App = () => {
   const [numberOfCameras, setNumberOfCameras] = useState(0);
   const [image, setImage] = useState<string | null>(null);
-  const camera = useRef<any>(null);
+  const camera = useRef<CameraType>(null);
 
   return (
     <Wrapper>
@@ -108,16 +122,20 @@ const App = () => {
         <ImagePreview image={image} />
         <TakePhotoButton
           onClick={() => {
-            const photo = camera.current.takePhoto();
-            console.log(photo);
-            setImage(photo);
+            if (camera.current) {
+              const photo = camera.current.takePhoto();
+              console.log(photo);
+              setImage(photo);
+            }
           }}
         />
         <ChangeFacingCameraButton
-          hidden={numberOfCameras <= 1}
+          disabled={numberOfCameras <= 1}
           onClick={() => {
-            const result = camera.current.switchCamera();
-            console.log(result);
+            if (camera.current) {
+              const result = camera.current.switchCamera();
+              console.log(result);
+            }
           }}
         />
       </Control>
