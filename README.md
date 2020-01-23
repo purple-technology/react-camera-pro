@@ -133,7 +133,6 @@ const Component = () => {
 
 MIT
 
-
-[build-badge]: https://img.shields.io/travis/com/mozmorris/react-camera-pro.svg?style=flat-square
-[build]: https://travis-ci.com/mozmorris/react-camera-pro
+[build-badge]: https://img.shields.io/travis/com/purple-technology/react-camera-pro.svg?style=flat-square
+[build]: https://travis-ci.com/purple-technology/react-camera-pro
 [downloads-badge]: https://img.shields.io/npm/dw/react-cmera-pro.svg?style=flat-square
