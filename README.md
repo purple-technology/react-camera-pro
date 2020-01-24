@@ -6,7 +6,7 @@
 Universal Camera component for React. 
 
 Designed with focus on Android and iOS cameras. 
-Works with standards webcams as well.
+Works with standard webcams as well.
 
 See [this](http://caniuse.com/#feat=stream) for browser compatibility.
 
