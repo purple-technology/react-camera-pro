@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "94126cd7d5011cf302fd8dd28dfbe4a5",
+    "revision": "5e9b6e4f496ef423d374195bad2e8273",
     "url": "/react-camera-pro/index.html"
   },
   {
-    "revision": "3bd085c8f91c1fa8f4b1",
+    "revision": "d7efad937591e4e6d6b2",
     "url": "/react-camera-pro/static/css/main.795991f2.chunk.css"
   },
   {
@@ -12,8 +12,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/react-camera-pro/static/js/2.4496e782.chunk.js"
   },
   {
-    "revision": "3bd085c8f91c1fa8f4b1",
-    "url": "/react-camera-pro/static/js/main.cafdad7a.chunk.js"
+    "revision": "d7efad937591e4e6d6b2",
+    "url": "/react-camera-pro/static/js/main.26bb519c.chunk.js"
   },
   {
     "revision": "8a6545c21b1c4afd00e7",
