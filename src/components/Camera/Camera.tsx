@@ -1,15 +1,34 @@
 import React, { useState, useEffect, useRef, useImperativeHandle } from 'react';
-import { CameraProps, FacingMode, Stream, SetStream, SetNumberOfCameras } from './types';
-import { Container, Wrapper, Canvas, Cam } from './styles';
+import {
+  CameraProps,
+  FacingMode,
+  Stream,
+  SetStream,
+  SetNumberOfCameras,
+  SetNotSupported,
+  SetPermissionDenied,
+} from './types';
+import { Container, Wrapper, Canvas, Cam, ErrorMsg } from './styles';
 
 export const Camera = React.forwardRef<unknown, CameraProps>(
-  ({ facingMode = 'user', aspectRatio = 'cover', numberOfCamerasCallback = () => null }, ref) => {
+  (
+    {
+      facingMode = 'user',
+      aspectRatio = 'cover',
+      numberOfCamerasCallback = () => null,
+      errorMessage = 'Any camera device accessible. Please connect your camera or try different browser.',
+      permissionDeniedMessage = 'Permission denied. Please refresh and give camera permission.',
+    },
+    ref,
+  ) => {
     const player = useRef<HTMLVideoElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
     const container = useRef<HTMLDivElement>(null);
     const [numberOfCameras, setNumberOfCameras] = useState<number>(0);
     const [stream, setStream] = useState<Stream>(null);
     const [currentFacingMode, setFacingMode] = useState<FacingMode>(facingMode);
+    const [notSupported, setNotSupported] = useState<boolean>(false);
+    const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
 
     useEffect(() => {
       numberOfCamerasCallback(numberOfCameras);
@@ -75,7 +94,18 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
       },
     }));
 
-    useEffect(() => initCameraStream(stream, setStream, currentFacingMode, setNumberOfCameras), [currentFacingMode]);
+    useEffect(
+      () =>
+        initCameraStream(
+          stream,
+          setStream,
+          currentFacingMode,
+          setNumberOfCameras,
+          setNotSupported,
+          setPermissionDenied,
+        ),
+      [currentFacingMode],
+    );
 
     useEffect(() => {
       if (stream && player && player.current) {
@@ -86,6 +116,8 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
     return (
       <Container ref={container} aspectRatio={aspectRatio}>
         <Wrapper>
+          {permissionDenied ? <ErrorMsg>{errorMessage}</ErrorMsg> : null}
+          {notSupported ? <ErrorMsg>{permissionDeniedMessage}</ErrorMsg> : null}
           <Cam
             ref={player}
             id="video"
@@ -108,6 +140,8 @@ const initCameraStream = (
   setStream: SetStream,
   currentFacingMode: FacingMode,
   setNumberOfCameras: SetNumberOfCameras,
+  setNotSupported: SetNotSupported,
+  setPermissionDenied: SetPermissionDenied,
 ) => {
   // stop any active streams in the window
   if (stream) {
@@ -125,12 +159,36 @@ const initCameraStream = (
     },
   };
 
-  navigator.mediaDevices
-    .getUserMedia(constraints)
-    .then(stream => {
-      setStream(handleSuccess(stream, setNumberOfCameras));
-    })
-    .catch(handleError);
+  if (navigator?.mediaDevices?.getUserMedia) {
+    navigator.mediaDevices
+      .getUserMedia(constraints)
+      .then(stream => {
+        setStream(handleSuccess(stream, setNumberOfCameras));
+      })
+      .catch(err => {
+        handleError(err, setNotSupported, setPermissionDenied);
+      });
+  } else {
+    const getWebcam =
+      navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.msGetUserMedia;
+    if (getWebcam) {
+      getWebcam(
+        constraints,
+        stream => {
+          setStream(handleSuccess(stream, setNumberOfCameras));
+        },
+        err => {
+          handleError(err as Error, setNotSupported, setPermissionDenied);
+        },
+      );
+    } else {
+      setNotSupported(true);
+    }
+  }
 };
 
 const handleSuccess = (stream: MediaStream, setNumberOfCameras: SetNumberOfCameras) => {
@@ -145,11 +203,13 @@ const handleSuccess = (stream: MediaStream, setNumberOfCameras: SetNumberOfCamer
   return stream;
 };
 
-const handleError = (error: Error) => {
+const handleError = (error: Error, setNotSupported: SetNotSupported, setPermissionDenied: SetPermissionDenied) => {
   console.error(error);
 
   //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
   if (error.name === 'PermissionDeniedError') {
-    throw new Error('Permission denied. Please refresh and give camera permission.');
+    setPermissionDenied(true);
+  } else {
+    setNotSupported(true);
   }
 };

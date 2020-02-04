@@ -23,6 +23,9 @@ export const Container = styled.div<{ aspectRatio: AspectRatio }>`
     position: relative;
     padding-bottom: ${100 / aspectRatio}%;`}
 `;
+export const ErrorMsg = styled.div`
+  padding: 40px;
+`;
 
 export const Cam = styled.video<{ mirrored: boolean }>`
   width: 100%;

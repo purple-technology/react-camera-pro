@@ -30,21 +30,24 @@ var Container = styled.div(templateObject_2 || (templateObject_2 = __makeTemplat
         ? "\n    position: absolute;\n    bottom: 0\n    top: 0\n    left: 0\n    right: 0"
         : "\n    position: relative;\n    padding-bottom: " + 100 / aspectRatio + "%;";
 });
-var Cam = styled.video(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  z-index: 0;\n  transform: rotateY(", ");\n"], ["\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  z-index: 0;\n  transform: rotateY(", ");\n"])), function (_a) {
+var ErrorMsg = styled.div(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n  padding: 40px;\n"], ["\n  padding: 40px;\n"])));
+var Cam = styled.video(templateObject_4 || (templateObject_4 = __makeTemplateObject(["\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  z-index: 0;\n  transform: rotateY(", ");\n"], ["\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  z-index: 0;\n  transform: rotateY(", ");\n"])), function (_a) {
     var mirrored = _a.mirrored;
     return (mirrored ? '180deg' : '0deg');
 });
-var Canvas = styled.canvas(templateObject_4 || (templateObject_4 = __makeTemplateObject(["\n  display: none;\n"], ["\n  display: none;\n"])));
-var templateObject_1, templateObject_2, templateObject_3, templateObject_4;
+var Canvas = styled.canvas(templateObject_5 || (templateObject_5 = __makeTemplateObject(["\n  display: none;\n"], ["\n  display: none;\n"])));
+var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5;
 
 var Camera = React.forwardRef(function (_a, ref) {
-    var _b = _a.facingMode, facingMode = _b === void 0 ? 'user' : _b, _c = _a.aspectRatio, aspectRatio = _c === void 0 ? 'cover' : _c, _d = _a.numberOfCamerasCallback, numberOfCamerasCallback = _d === void 0 ? function () { return null; } : _d;
+    var _b = _a.facingMode, facingMode = _b === void 0 ? 'user' : _b, _c = _a.aspectRatio, aspectRatio = _c === void 0 ? 'cover' : _c, _d = _a.numberOfCamerasCallback, numberOfCamerasCallback = _d === void 0 ? function () { return null; } : _d, _e = _a.errorMessage, errorMessage = _e === void 0 ? 'Any camera device accessible. Please connect your camera or try different browser.' : _e, _f = _a.permissionDeniedMessage, permissionDeniedMessage = _f === void 0 ? 'Permission denied. Please refresh and give camera permission.' : _f;
     var player = useRef(null);
     var canvas = useRef(null);
     var container = useRef(null);
-    var _e = useState(0), numberOfCameras = _e[0], setNumberOfCameras = _e[1];
-    var _f = useState(null), stream = _f[0], setStream = _f[1];
-    var _g = useState(facingMode), currentFacingMode = _g[0], setFacingMode = _g[1];
+    var _g = useState(0), numberOfCameras = _g[0], setNumberOfCameras = _g[1];
+    var _h = useState(null), stream = _h[0], setStream = _h[1];
+    var _j = useState(facingMode), currentFacingMode = _j[0], setFacingMode = _j[1];
+    var _k = useState(false), notSupported = _k[0], setNotSupported = _k[1];
+    var _l = useState(false), permissionDenied = _l[0], setPermissionDenied = _l[1];
     useEffect(function () {
         numberOfCamerasCallback(numberOfCameras);
     }, [numberOfCameras]);
@@ -102,7 +105,9 @@ var Camera = React.forwardRef(function (_a, ref) {
             return numberOfCameras;
         },
     }); });
-    useEffect(function () { return initCameraStream(stream, setStream, currentFacingMode, setNumberOfCameras); }, [currentFacingMode]);
+    useEffect(function () {
+        return initCameraStream(stream, setStream, currentFacingMode, setNumberOfCameras, setNotSupported, setPermissionDenied);
+    }, [currentFacingMode]);
     useEffect(function () {
         if (stream && player && player.current) {
             player.current.srcObject = stream;
@@ -110,11 +115,14 @@ var Camera = React.forwardRef(function (_a, ref) {
     }, [stream]);
     return (React.createElement(Container, { ref: container, aspectRatio: aspectRatio },
         React.createElement(Wrapper, null,
+            permissionDenied ? React.createElement(ErrorMsg, null, errorMessage) : null,
+            notSupported ? React.createElement(ErrorMsg, null, permissionDeniedMessage) : null,
             React.createElement(Cam, { ref: player, id: "video", muted: true, autoPlay: true, playsInline: true, mirrored: currentFacingMode === 'user' ? true : false }),
             React.createElement(Canvas, { ref: canvas }))));
 });
 Camera.displayName = 'Camera';
-var initCameraStream = function (stream, setStream, currentFacingMode, setNumberOfCameras) {
+var initCameraStream = function (stream, setStream, currentFacingMode, setNumberOfCameras, setNotSupported, setPermissionDenied) {
+    var _a, _b;
     // stop any active streams in the window
     if (stream) {
         stream.getTracks().forEach(function (track) {
@@ -129,12 +137,33 @@ var initCameraStream = function (stream, setStream, currentFacingMode, setNumber
             height: { ideal: 1920 },
         },
     };
-    navigator.mediaDevices
-        .getUserMedia(constraints)
-        .then(function (stream) {
-        setStream(handleSuccess(stream, setNumberOfCameras));
-    })
-        .catch(handleError);
+    if ((_b = (_a = navigator) === null || _a === void 0 ? void 0 : _a.mediaDevices) === null || _b === void 0 ? void 0 : _b.getUserMedia) {
+        navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then(function (stream) {
+            setStream(handleSuccess(stream, setNumberOfCameras));
+        })
+            .catch(function (err) {
+            handleError(err, setNotSupported, setPermissionDenied);
+        });
+    }
+    else {
+        var getWebcam = navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia;
+        if (getWebcam) {
+            getWebcam(constraints, function (stream) {
+                setStream(handleSuccess(stream, setNumberOfCameras));
+            }, function (err) {
+                handleError(err, setNotSupported, setPermissionDenied);
+            });
+        }
+        else {
+            setNotSupported(true);
+        }
+    }
 };
 var handleSuccess = function (stream, setNumberOfCameras) {
     var track = stream.getVideoTracks()[0];
@@ -146,11 +175,14 @@ var handleSuccess = function (stream, setNumberOfCameras) {
         .then(function (r) { return setNumberOfCameras(r.filter(function (i) { return i.kind === 'videoinput'; }).length); });
     return stream;
 };
-var handleError = function (error) {
+var handleError = function (error, setNotSupported, setPermissionDenied) {
     console.error(error);
     //https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
     if (error.name === 'PermissionDeniedError') {
-        throw new Error('Permission denied. Please refresh and give camera permission.');
+        setPermissionDenied(true);
+    }
+    else {
+        setNotSupported(true);
     }
 };
 

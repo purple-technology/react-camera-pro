@@ -65,11 +65,13 @@ export Component;
 
 ### Props
 
-| prop                    | type                             | default      | notes                                          |
-| ----------------------- | -------------------------------- | ------------ | ---------------------------------------------- |
-| facingMode              | `'user'\|'environment'`          | `'user'`     | default camera - 'user' or 'environment'       |
-| aspectRatio             | `'cover'\|number`                | `'cover'`    | aspect ratio of video (16/9, 4/3);             |
-| numberOfCamerasCallback | `(numberOfCameras: number):void` | `() => null` | callback is called if number of cameras change |
+| prop                    | type                             | default           | notes                                           |
+| ----------------------- | -------------------------------- | ----------------- | ----------------------------------------------- |
+| facingMode              | `'user'\|'environment'`          | `'user'`          | default camera - 'user' or 'environment'        |
+| aspectRatio             | `'cover'\|number`                | `'cover'`         | aspect ratio of video (16/9, 4/3);              |
+| numberOfCamerasCallback | `(numberOfCameras: number):void` | `() => null`      | callback is called if number of cameras change  |
+| errorMessage            | `string`                         | `default message` | Error message if webRTC is not supported        |
+| permissionDeniedMessage | `string`                         | `default message` | Error message if permission to camera is denied |
 
 ### Methods
 
