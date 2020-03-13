@@ -114,16 +114,43 @@ const ImagePreview = styled.div<{ image: string | null }>`
   }
 `;
 
+const FullScreenImagePreview = styled.div<{ image: string | null }>`
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  position: absolute;
+  background-color: black;
+  ${({ image }) => (image ? `background-image:  url(${image});` : '')}
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+`;
+
 const App = () => {
   const [numberOfCameras, setNumberOfCameras] = useState(0);
   const [image, setImage] = useState<string | null>(null);
+  const [showImage, setShowImage] = useState<boolean>(false);
   const camera = useRef<CameraType>(null);
 
   return (
     <Wrapper>
-      <Camera ref={camera} aspectRatio="cover" numberOfCamerasCallback={setNumberOfCameras} />
+      {showImage ? (
+        <FullScreenImagePreview
+          image={image}
+          onClick={() => {
+            setShowImage(!showImage);
+          }}
+        />
+      ) : (
+        <Camera ref={camera} aspectRatio="cover" numberOfCamerasCallback={setNumberOfCameras} />
+      )}
       <Control>
-        <ImagePreview image={image} />
+        <ImagePreview
+          image={image}
+          onClick={() => {
+            setShowImage(!showImage);
+          }}
+        />
         <TakePhotoButton
           onClick={() => {
             if (camera.current) {

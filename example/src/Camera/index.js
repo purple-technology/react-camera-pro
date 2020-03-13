@@ -106,12 +106,20 @@ var Camera = React.forwardRef(function (_a, ref) {
         },
     }); });
     useEffect(function () {
-        return initCameraStream(stream, setStream, currentFacingMode, setNumberOfCameras, setNotSupported, setPermissionDenied);
+        initCameraStream(stream, setStream, currentFacingMode, setNumberOfCameras, setNotSupported, setPermissionDenied);
     }, [currentFacingMode]);
     useEffect(function () {
         if (stream && player && player.current) {
             player.current.srcObject = stream;
         }
+        return function () {
+            console.log('stop!');
+            if (stream) {
+                stream.getTracks().forEach(function (track) {
+                    track.stop();
+                });
+            }
+        };
     }, [stream]);
     return (React.createElement(Container, { ref: container, aspectRatio: aspectRatio },
         React.createElement(Wrapper, null,

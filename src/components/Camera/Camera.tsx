@@ -94,23 +94,22 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
       },
     }));
 
-    useEffect(
-      () =>
-        initCameraStream(
-          stream,
-          setStream,
-          currentFacingMode,
-          setNumberOfCameras,
-          setNotSupported,
-          setPermissionDenied,
-        ),
-      [currentFacingMode],
-    );
+    useEffect(() => {
+      initCameraStream(stream, setStream, currentFacingMode, setNumberOfCameras, setNotSupported, setPermissionDenied);
+    }, [currentFacingMode]);
 
     useEffect(() => {
       if (stream && player && player.current) {
         player.current.srcObject = stream;
       }
+      return () => {
+        console.log('stop!');
+        if (stream) {
+          stream.getTracks().forEach(track => {
+            track.stop();
+          });
+        }
+      };
     }, [stream]);
 
     return (
