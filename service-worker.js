@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/react-camera-pro/precache-manifest.d53168ac7952941e363467ee5f3b944c.js"
+  "/react-camera-pro/precache-manifest.dc436e8fe763fdd9dd19ddfa2a774c4f.js"
 );
 
 self.addEventListener('message', (event) => {
