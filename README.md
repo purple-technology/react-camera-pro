@@ -77,7 +77,7 @@ export Component;
 
 Type:
 
-````typescript
+```typescript
 errorMessages: {
   noCameraAccessible?: string;
   permissionDenied?: string;
@@ -95,7 +95,7 @@ Default:
     'It is not possible to switch camera to different one because there is only one video device accessible.',
     canvas: 'Canvas is not supported.'
   }
-````
+```
 
 ### Methods
 
