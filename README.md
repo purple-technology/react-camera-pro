@@ -77,7 +77,7 @@ export Component;
 
 Type:
 
-```typescript
+```
 errorMessages: {
   noCameraAccessible?: string;
   permissionDenied?: string;
