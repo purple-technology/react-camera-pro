@@ -84,6 +84,7 @@ errorMessages: {
   switchCamera?: string;
   canvas?: string;
 };
+```
 
 Default:
 ```
