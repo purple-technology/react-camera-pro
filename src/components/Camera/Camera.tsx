@@ -16,8 +16,13 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
       facingMode = 'user',
       aspectRatio = 'cover',
       numberOfCamerasCallback = () => null,
-      errorMessage = 'Any camera device accessible. Please connect your camera or try different browser.',
-      permissionDeniedMessage = 'Permission denied. Please refresh and give camera permission.',
+      errorMessages = {
+        noCameraAccessible: 'No camera device accessible. Please connect your camera or try a different browser.',
+        permissionDenied: 'Permission denied. Please refresh and give camera permission.',
+        switchCamera:
+          'It is not possible to switch camera to different one because there is only one video device accessible.',
+        canvas: 'Canvas is not supported.',
+      },
     },
     ref,
   ) => {
@@ -37,7 +42,7 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
     useImperativeHandle(ref, () => ({
       takePhoto: () => {
         if (numberOfCameras < 1) {
-          throw new Error("There isn't any video device accessible.");
+          throw new Error(errorMessages.noCameraAccessible);
         }
 
         if (canvas?.current) {
@@ -74,16 +79,14 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
           const imgData = canvas.current.toDataURL('image/jpeg');
           return imgData;
         } else {
-          throw new Error('Canvas is not supported');
+          throw new Error(errorMessages.canvas);
         }
       },
       switchCamera: () => {
         if (numberOfCameras < 1) {
-          throw new Error("There isn't any video device accessible.");
+          throw new Error(errorMessages.noCameraAccessible);
         } else if (numberOfCameras < 2) {
-          console.warn(
-            'It is not possible to switch camera to different one, because there is only one video device accessible.',
-          );
+          console.error('Error: Unable to switch camera. Only one device is accessible.'); // console only
         }
         const newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
         setFacingMode(newFacingMode);
@@ -103,7 +106,6 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
         player.current.srcObject = stream;
       }
       return () => {
-        console.log('stop!');
         if (stream) {
           stream.getTracks().forEach(track => {
             track.stop();
@@ -115,8 +117,8 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
     return (
       <Container ref={container} aspectRatio={aspectRatio}>
         <Wrapper>
-          {permissionDenied ? <ErrorMsg>{errorMessage}</ErrorMsg> : null}
-          {notSupported ? <ErrorMsg>{permissionDeniedMessage}</ErrorMsg> : null}
+          {notSupported ? <ErrorMsg>{errorMessages.noCameraAccessible}</ErrorMsg> : null}
+          {permissionDenied ? <ErrorMsg>{errorMessages.permissionDenied}</ErrorMsg> : null}
           <Cam
             ref={player}
             id="video"
@@ -191,10 +193,6 @@ const initCameraStream = (
 };
 
 const handleSuccess = (stream: MediaStream, setNumberOfCameras: SetNumberOfCameras) => {
-  const track = stream.getVideoTracks()[0];
-  const settings = track.getSettings();
-  const str = JSON.stringify(settings, null, 4);
-  console.log('Camera settings ' + str);
   navigator.mediaDevices
     .enumerateDevices()
     .then(r => setNumberOfCameras(r.filter(i => i.kind === 'videoinput').length));

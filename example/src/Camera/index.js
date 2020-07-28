@@ -39,15 +39,20 @@ var Canvas = styled.canvas(templateObject_5 || (templateObject_5 = __makeTemplat
 var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5;
 
 var Camera = React.forwardRef(function (_a, ref) {
-    var _b = _a.facingMode, facingMode = _b === void 0 ? 'user' : _b, _c = _a.aspectRatio, aspectRatio = _c === void 0 ? 'cover' : _c, _d = _a.numberOfCamerasCallback, numberOfCamerasCallback = _d === void 0 ? function () { return null; } : _d, _e = _a.errorMessage, errorMessage = _e === void 0 ? 'Any camera device accessible. Please connect your camera or try different browser.' : _e, _f = _a.permissionDeniedMessage, permissionDeniedMessage = _f === void 0 ? 'Permission denied. Please refresh and give camera permission.' : _f;
+    var _b = _a.facingMode, facingMode = _b === void 0 ? 'user' : _b, _c = _a.aspectRatio, aspectRatio = _c === void 0 ? 'cover' : _c, _d = _a.numberOfCamerasCallback, numberOfCamerasCallback = _d === void 0 ? function () { return null; } : _d, _e = _a.errorMessages, errorMessages = _e === void 0 ? {
+        noCameraAccessible: 'No camera device accessible. Please connect your camera or try a different browser.',
+        permissionDenied: 'Permission denied. Please refresh and give camera permission.',
+        switchCamera: 'It is not possible to switch camera to different one because there is only one video device accessible.',
+        canvas: 'Canvas is not supported.',
+    } : _e;
     var player = useRef(null);
     var canvas = useRef(null);
     var container = useRef(null);
-    var _g = useState(0), numberOfCameras = _g[0], setNumberOfCameras = _g[1];
-    var _h = useState(null), stream = _h[0], setStream = _h[1];
-    var _j = useState(facingMode), currentFacingMode = _j[0], setFacingMode = _j[1];
-    var _k = useState(false), notSupported = _k[0], setNotSupported = _k[1];
-    var _l = useState(false), permissionDenied = _l[0], setPermissionDenied = _l[1];
+    var _f = useState(0), numberOfCameras = _f[0], setNumberOfCameras = _f[1];
+    var _g = useState(null), stream = _g[0], setStream = _g[1];
+    var _h = useState(facingMode), currentFacingMode = _h[0], setFacingMode = _h[1];
+    var _j = useState(false), notSupported = _j[0], setNotSupported = _j[1];
+    var _k = useState(false), permissionDenied = _k[0], setPermissionDenied = _k[1];
     useEffect(function () {
         numberOfCamerasCallback(numberOfCameras);
     }, [numberOfCameras]);
@@ -55,7 +60,7 @@ var Camera = React.forwardRef(function (_a, ref) {
         takePhoto: function () {
             var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
             if (numberOfCameras < 1) {
-                throw new Error("There isn't any video device accessible.");
+                throw new Error(errorMessages.noCameraAccessible);
             }
             if ((_a = canvas) === null || _a === void 0 ? void 0 : _a.current) {
                 var playerWidth = ((_c = (_b = player) === null || _b === void 0 ? void 0 : _b.current) === null || _c === void 0 ? void 0 : _c.videoWidth) || 1280;
@@ -87,15 +92,15 @@ var Camera = React.forwardRef(function (_a, ref) {
                 return imgData;
             }
             else {
-                throw new Error('Canvas is not supported');
+                throw new Error(errorMessages.canvas);
             }
         },
         switchCamera: function () {
             if (numberOfCameras < 1) {
-                throw new Error("There isn't any video device accessible.");
+                throw new Error(errorMessages.noCameraAccessible);
             }
             else if (numberOfCameras < 2) {
-                console.warn('It is not possible to switch camera to different one, because there is only one video device accessible.');
+                console.error('Error: Unable to switch camera. Only one device is accessible.'); // console only
             }
             var newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
             setFacingMode(newFacingMode);
@@ -113,7 +118,6 @@ var Camera = React.forwardRef(function (_a, ref) {
             player.current.srcObject = stream;
         }
         return function () {
-            console.log('stop!');
             if (stream) {
                 stream.getTracks().forEach(function (track) {
                     track.stop();
@@ -123,8 +127,8 @@ var Camera = React.forwardRef(function (_a, ref) {
     }, [stream]);
     return (React.createElement(Container, { ref: container, aspectRatio: aspectRatio },
         React.createElement(Wrapper, null,
-            permissionDenied ? React.createElement(ErrorMsg, null, errorMessage) : null,
-            notSupported ? React.createElement(ErrorMsg, null, permissionDeniedMessage) : null,
+            notSupported ? React.createElement(ErrorMsg, null, errorMessages.noCameraAccessible) : null,
+            permissionDenied ? React.createElement(ErrorMsg, null, errorMessages.permissionDenied) : null,
             React.createElement(Cam, { ref: player, id: "video", muted: true, autoPlay: true, playsInline: true, mirrored: currentFacingMode === 'user' ? true : false }),
             React.createElement(Canvas, { ref: canvas }))));
 });
@@ -174,10 +178,6 @@ var initCameraStream = function (stream, setStream, currentFacingMode, setNumber
     }
 };
 var handleSuccess = function (stream, setNumberOfCameras) {
-    var track = stream.getVideoTracks()[0];
-    var settings = track.getSettings();
-    var str = JSON.stringify(settings, null, 4);
-    console.log('Camera settings ' + str);
     navigator.mediaDevices
         .enumerateDevices()
         .then(function (r) { return setNumberOfCameras(r.filter(function (i) { return i.kind === 'videoinput'; }).length); });

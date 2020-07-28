@@ -9,8 +9,12 @@ export interface CameraProps {
   facingMode?: FacingMode;
   aspectRatio?: AspectRatio;
   numberOfCamerasCallback?(numberOfCameras: number): void;
-  errorMessage?: string;
-  permissionDeniedMessage?: string;
+  errorMessages: {
+    noCameraAccessible?: string;
+    permissionDenied?: string;
+    switchCamera?: string;
+    canvas?: string;
+  };
 }
 
 export type CameraType = React.ForwardRefExoticComponent<CameraProps & React.RefAttributes<unknown>> & {
