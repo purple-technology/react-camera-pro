@@ -155,8 +155,6 @@ const initCameraStream = (
     audio: false,
     video: {
       facingMode: currentFacingMode,
-      width: { ideal: 1920 },
-      height: { ideal: 1920 },
     },
   };
 
