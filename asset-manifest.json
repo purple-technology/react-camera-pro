@@ -1,21 +1,21 @@
 {
   "files": {
     "main.css": "/react-camera-pro/static/css/main.795991f2.chunk.css",
-    "main.js": "/react-camera-pro/static/js/main.6b1e3705.chunk.js",
-    "main.js.map": "/react-camera-pro/static/js/main.6b1e3705.chunk.js.map",
+    "main.js": "/react-camera-pro/static/js/main.133f2579.chunk.js",
+    "main.js.map": "/react-camera-pro/static/js/main.133f2579.chunk.js.map",
     "runtime-main.js": "/react-camera-pro/static/js/runtime-main.ed64f0d0.js",
     "runtime-main.js.map": "/react-camera-pro/static/js/runtime-main.ed64f0d0.js.map",
-    "static/js/2.13cc4212.chunk.js": "/react-camera-pro/static/js/2.13cc4212.chunk.js",
-    "static/js/2.13cc4212.chunk.js.map": "/react-camera-pro/static/js/2.13cc4212.chunk.js.map",
+    "static/js/2.b3968a60.chunk.js": "/react-camera-pro/static/js/2.b3968a60.chunk.js",
+    "static/js/2.b3968a60.chunk.js.map": "/react-camera-pro/static/js/2.b3968a60.chunk.js.map",
     "index.html": "/react-camera-pro/index.html",
-    "precache-manifest.d5e9ce469d490a69180e6c16b266bfa9.js": "/react-camera-pro/precache-manifest.d5e9ce469d490a69180e6c16b266bfa9.js",
+    "precache-manifest.4d913c81668b35a55827906ffe5b2714.js": "/react-camera-pro/precache-manifest.4d913c81668b35a55827906ffe5b2714.js",
     "service-worker.js": "/react-camera-pro/service-worker.js",
     "static/css/main.795991f2.chunk.css.map": "/react-camera-pro/static/css/main.795991f2.chunk.css.map"
   },
   "entrypoints": [
     "static/js/runtime-main.ed64f0d0.js",
-    "static/js/2.13cc4212.chunk.js",
+    "static/js/2.b3968a60.chunk.js",
     "static/css/main.795991f2.chunk.css",
-    "static/js/main.6b1e3705.chunk.js"
+    "static/js/main.133f2579.chunk.js"
   ]
 }
