@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Camera, CameraType } from './Camera';
@@ -131,6 +131,16 @@ const App = () => {
   const [image, setImage] = useState<string | null>(null);
   const [showImage, setShowImage] = useState<boolean>(false);
   const camera = useRef<CameraType>(null);
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    (async () => {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(i => i.kind == 'videoinput');
+      setDevices(videoDevices);
+    })();
+  });
 
   return (
     <Wrapper>
@@ -145,7 +155,8 @@ const App = () => {
         <Camera
           ref={camera}
           aspectRatio="cover"
-          numberOfCamerasCallback={setNumberOfCameras}
+          numberOfCamerasCallback={i => setNumberOfCameras(i)}
+          videoSourceDeviceId={activeDeviceId}
           errorMessages={{
             noCameraAccessible: 'No camera device accessible. Please connect your camera or try a different browser.',
             permissionDenied: 'Permission denied. Please refresh and give camera permission.',
@@ -156,6 +167,17 @@ const App = () => {
         />
       )}
       <Control>
+        <select
+          onChange={event => {
+            setActiveDeviceId(event.target.value);
+          }}
+        >
+          {devices.map(d => (
+            <option key={d.deviceId} value={d.deviceId}>
+              {d.label}
+            </option>
+          ))}
+        </select>
         <ImagePreview
           image={image}
           onClick={() => {

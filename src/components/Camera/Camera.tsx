@@ -16,6 +16,7 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
       facingMode = 'user',
       aspectRatio = 'cover',
       numberOfCamerasCallback = () => null,
+      videoSourceDeviceId = undefined,
       errorMessages = {
         noCameraAccessible: 'No camera device accessible. Please connect your camera or try a different browser.',
         permissionDenied: 'Permission denied. Please refresh and give camera permission.',
@@ -98,8 +99,16 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
     }));
 
     useEffect(() => {
-      initCameraStream(stream, setStream, currentFacingMode, setNumberOfCameras, setNotSupported, setPermissionDenied);
-    }, [currentFacingMode]);
+      initCameraStream(
+        stream,
+        setStream,
+        currentFacingMode,
+        videoSourceDeviceId,
+        setNumberOfCameras,
+        setNotSupported,
+        setPermissionDenied,
+      );
+    }, [currentFacingMode, videoSourceDeviceId]);
 
     useEffect(() => {
       if (stream && player && player.current) {
@@ -140,6 +149,7 @@ const initCameraStream = (
   stream: Stream,
   setStream: SetStream,
   currentFacingMode: FacingMode,
+  videoSourceDeviceId: string | undefined,
   setNumberOfCameras: SetNumberOfCameras,
   setNotSupported: SetNotSupported,
   setPermissionDenied: SetPermissionDenied,
@@ -154,6 +164,7 @@ const initCameraStream = (
   const constraints = {
     audio: false,
     video: {
+      deviceId: videoSourceDeviceId ? { exact: videoSourceDeviceId } : undefined,
       facingMode: currentFacingMode,
       width: { ideal: 1920 },
       height: { ideal: 1920 },
