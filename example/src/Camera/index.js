@@ -58,16 +58,16 @@ var Camera = React.forwardRef(function (_a, ref) {
     }, [numberOfCameras]);
     useImperativeHandle(ref, function () { return ({
         takePhoto: function () {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+            var _a, _b, _c, _d;
             if (numberOfCameras < 1) {
                 throw new Error(errorMessages.noCameraAccessible);
             }
-            if ((_a = canvas) === null || _a === void 0 ? void 0 : _a.current) {
-                var playerWidth = ((_c = (_b = player) === null || _b === void 0 ? void 0 : _b.current) === null || _c === void 0 ? void 0 : _c.videoWidth) || 1280;
-                var playerHeight = ((_e = (_d = player) === null || _d === void 0 ? void 0 : _d.current) === null || _e === void 0 ? void 0 : _e.videoHeight) || 720;
+            if (canvas === null || canvas === void 0 ? void 0 : canvas.current) {
+                var playerWidth = ((_a = player === null || player === void 0 ? void 0 : player.current) === null || _a === void 0 ? void 0 : _a.videoWidth) || 1280;
+                var playerHeight = ((_b = player === null || player === void 0 ? void 0 : player.current) === null || _b === void 0 ? void 0 : _b.videoHeight) || 720;
                 var playerAR = playerWidth / playerHeight;
-                var canvasWidth = ((_g = (_f = container) === null || _f === void 0 ? void 0 : _f.current) === null || _g === void 0 ? void 0 : _g.offsetWidth) || 1280;
-                var canvasHeight = ((_j = (_h = container) === null || _h === void 0 ? void 0 : _h.current) === null || _j === void 0 ? void 0 : _j.offsetHeight) || 1280;
+                var canvasWidth = ((_c = container === null || container === void 0 ? void 0 : container.current) === null || _c === void 0 ? void 0 : _c.offsetWidth) || 1280;
+                var canvasHeight = ((_d = container === null || container === void 0 ? void 0 : container.current) === null || _d === void 0 ? void 0 : _d.offsetHeight) || 1280;
                 var canvasAR = canvasWidth / canvasHeight;
                 var sX = void 0, sY = void 0, sW = void 0, sH = void 0;
                 if (playerAR > canvasAR) {
@@ -85,7 +85,7 @@ var Camera = React.forwardRef(function (_a, ref) {
                 canvas.current.width = sW;
                 canvas.current.height = sH;
                 var context = canvas.current.getContext('2d');
-                if (context && ((_k = player) === null || _k === void 0 ? void 0 : _k.current)) {
+                if (context && (player === null || player === void 0 ? void 0 : player.current)) {
                     context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
                 }
                 var imgData = canvas.current.toDataURL('image/jpeg');
@@ -134,7 +134,7 @@ var Camera = React.forwardRef(function (_a, ref) {
 });
 Camera.displayName = 'Camera';
 var initCameraStream = function (stream, setStream, currentFacingMode, videoSourceDeviceId, setNumberOfCameras, setNotSupported, setPermissionDenied) {
-    var _a, _b;
+    var _a;
     // stop any active streams in the window
     if (stream) {
         stream.getTracks().forEach(function (track) {
@@ -150,7 +150,7 @@ var initCameraStream = function (stream, setStream, currentFacingMode, videoSour
             height: { ideal: 1920 },
         },
     };
-    if ((_b = (_a = navigator) === null || _a === void 0 ? void 0 : _a.mediaDevices) === null || _b === void 0 ? void 0 : _b.getUserMedia) {
+    if ((_a = navigator === null || navigator === void 0 ? void 0 : navigator.mediaDevices) === null || _a === void 0 ? void 0 : _a.getUserMedia) {
         navigator.mediaDevices
             .getUserMedia(constraints)
             .then(function (stream) {
