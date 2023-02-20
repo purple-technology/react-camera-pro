@@ -137,7 +137,7 @@ const App = () => {
   useEffect(() => {
     (async () => {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(i => i.kind == 'videoinput');
+      const videoDevices = devices.filter((i) => i.kind == 'videoinput');
       setDevices(videoDevices);
     })();
   });
@@ -155,7 +155,7 @@ const App = () => {
         <Camera
           ref={camera}
           aspectRatio="cover"
-          numberOfCamerasCallback={i => setNumberOfCameras(i)}
+          numberOfCamerasCallback={(i) => setNumberOfCameras(i)}
           videoSourceDeviceId={activeDeviceId}
           errorMessages={{
             noCameraAccessible: 'No camera device accessible. Please connect your camera or try a different browser.',
@@ -168,11 +168,11 @@ const App = () => {
       )}
       <Control>
         <select
-          onChange={event => {
+          onChange={(event) => {
             setActiveDeviceId(event.target.value);
           }}
         >
-          {devices.map(d => (
+          {devices.map((d) => (
             <option key={d.deviceId} value={d.deviceId}>
               {d.label}
             </option>
