@@ -24,6 +24,7 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
           'It is not possible to switch camera to different one because there is only one video device accessible.',
         canvas: 'Canvas is not supported.',
       },
+      videoReadyCallback = () => null,
     },
     ref,
   ) => {
@@ -135,6 +136,9 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
             autoPlay={true}
             playsInline={true}
             mirrored={currentFacingMode === 'user' ? true : false}
+            onLoadedData={() => {
+              videoReadyCallback();
+            }}
           ></Cam>
           <Canvas ref={canvas} />
         </Wrapper>

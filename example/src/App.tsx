@@ -164,6 +164,9 @@ const App = () => {
               'It is not possible to switch camera to different one because there is only one video device accessible.',
             canvas: 'Canvas is not supported.',
           }}
+          videoReadyCallback={() => {
+            console.log('Video feed ready.');
+          }}
         />
       )}
       <Control>

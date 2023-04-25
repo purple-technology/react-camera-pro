@@ -17,6 +17,7 @@ export interface CameraProps {
         switchCamera?: string;
         canvas?: string;
     };
+    videoReadyCallback?(): void;
 }
 export declare type CameraType = React.ForwardRefExoticComponent<CameraProps & React.RefAttributes<unknown>> & {
     takePhoto(): string;
