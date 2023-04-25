@@ -1,21 +1,13 @@
 {
   "files": {
-    "main.css": "/react-camera-pro/static/css/main.795991f2.chunk.css",
-    "main.js": "/react-camera-pro/static/js/main.133f2579.chunk.js",
-    "main.js.map": "/react-camera-pro/static/js/main.133f2579.chunk.js.map",
-    "runtime-main.js": "/react-camera-pro/static/js/runtime-main.ed64f0d0.js",
-    "runtime-main.js.map": "/react-camera-pro/static/js/runtime-main.ed64f0d0.js.map",
-    "static/js/2.b3968a60.chunk.js": "/react-camera-pro/static/js/2.b3968a60.chunk.js",
-    "static/js/2.b3968a60.chunk.js.map": "/react-camera-pro/static/js/2.b3968a60.chunk.js.map",
+    "main.css": "/react-camera-pro/static/css/main.4152c3d3.css",
+    "main.js": "/react-camera-pro/static/js/main.3fe5a50e.js",
     "index.html": "/react-camera-pro/index.html",
-    "precache-manifest.4d913c81668b35a55827906ffe5b2714.js": "/react-camera-pro/precache-manifest.4d913c81668b35a55827906ffe5b2714.js",
-    "service-worker.js": "/react-camera-pro/service-worker.js",
-    "static/css/main.795991f2.chunk.css.map": "/react-camera-pro/static/css/main.795991f2.chunk.css.map"
+    "main.4152c3d3.css.map": "/react-camera-pro/static/css/main.4152c3d3.css.map",
+    "main.3fe5a50e.js.map": "/react-camera-pro/static/js/main.3fe5a50e.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.ed64f0d0.js",
-    "static/js/2.b3968a60.chunk.js",
-    "static/css/main.795991f2.chunk.css",
-    "static/js/main.133f2579.chunk.js"
+    "static/css/main.4152c3d3.css",
+    "static/js/main.3fe5a50e.js"
   ]
 }
