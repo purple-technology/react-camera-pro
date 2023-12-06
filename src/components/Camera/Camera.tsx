@@ -41,8 +41,9 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
       numberOfCamerasCallback(numberOfCameras);
     }, [numberOfCameras]);
 
-    const takePhotoCallback = useCallback(() => {
-      if (numberOfCameras < 1) {
+    const captureImage = useCallback(
+      (type: 'base64url' | 'imgData') => {
+        if (numberOfCameras < 1) {
           throw new Error(errorMessages.noCameraAccessible);
         }
 
@@ -55,7 +56,7 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
           const canvasHeight = container?.current?.offsetHeight || 1280;
           const canvasAR = canvasWidth / canvasHeight;
 
-          let sX, sY, sW, sH;
+          let sX, sY, sW, sH, imgData;
 
           if (playerAR > canvasAR) {
             sH = playerHeight;
@@ -72,25 +73,31 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
           canvas.current.width = sW;
           canvas.current.height = sH;
 
-          return canvas.current.getContext('2d');
+          const context = canvas.current.getContext('2d');
+          if (context && player?.current) {
+            context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
+          }
+
+          switch (type) {
+            case 'imgData':
+              imgData = context?.getImageData(0, 0, sW, sH);
+              break;
+            default: /* base64url */
+              imgData = canvas.current.toDataURL('image/jpeg');
+              break;
+          }
+
+          return imgData;
         } else {
           throw new Error(errorMessages.canvas);
         }
-    }, [canvas.current, player.current, container.current]);
+      },
+      [canvas.current, player.current, container.current],
+    );
 
     useImperativeHandle(ref, () => ({
-      takePhoto: () => {
-        const context = takePhotoCallback();
-        if (context && player?.current) {
-          context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
-        }
-
-        const imgData = canvas.current.toDataURL('image/jpeg');
-        return imgData;
-      },
-      takePhotoWithContext: () => {
-        return takePhotoCallback();
-      },
+      takePhoto: () => captureImage('base64url'),
+      takePhotoAsImgData: () => captureImage('imgData'),
       switchCamera: () => {
         if (numberOfCameras < 1) {
           throw new Error(errorMessages.noCameraAccessible);
@@ -124,7 +131,7 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
       }
       return () => {
         if (stream) {
-          stream.getTracks().forEach(track => {
+          stream.getTracks().forEach((track) => {
             track.stop();
           });
         }
@@ -167,7 +174,7 @@ const initCameraStream = (
 ) => {
   // stop any active streams in the window
   if (stream) {
-    stream.getTracks().forEach(track => {
+    stream.getTracks().forEach((track) => {
       track.stop();
     });
   }
@@ -185,10 +192,10 @@ const initCameraStream = (
   if (navigator?.mediaDevices?.getUserMedia) {
     navigator.mediaDevices
       .getUserMedia(constraints)
-      .then(stream => {
+      .then((stream) => {
         setStream(handleSuccess(stream, setNumberOfCameras));
       })
-      .catch(err => {
+      .catch((err) => {
         handleError(err, setNotSupported, setPermissionDenied);
       });
   } else {
@@ -201,10 +208,10 @@ const initCameraStream = (
     if (getWebcam) {
       getWebcam(
         constraints,
-        stream => {
+        (stream) => {
           setStream(handleSuccess(stream, setNumberOfCameras));
         },
-        err => {
+        (err) => {
           handleError(err as Error, setNotSupported, setPermissionDenied);
         },
       );
@@ -217,7 +224,7 @@ const initCameraStream = (
 const handleSuccess = (stream: MediaStream, setNumberOfCameras: SetNumberOfCameras) => {
   navigator.mediaDevices
     .enumerateDevices()
-    .then(r => setNumberOfCameras(r.filter(i => i.kind === 'videoinput').length));
+    .then((r) => setNumberOfCameras(r.filter((i) => i.kind === 'videoinput').length));
 
   return stream;
 };

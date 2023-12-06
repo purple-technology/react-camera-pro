@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useRef, useState, useEffect, useImperativeHandle } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useImperativeHandle } from 'react';
 import styled from 'styled-components';
 
 /*! *****************************************************************************
@@ -56,45 +56,54 @@ var Camera = React.forwardRef(function (_a, ref) {
     useEffect(function () {
         numberOfCamerasCallback(numberOfCameras);
     }, [numberOfCameras]);
-    useImperativeHandle(ref, function () { return ({
-        takePhoto: function () {
-            var _a, _b, _c, _d;
-            if (numberOfCameras < 1) {
-                throw new Error(errorMessages.noCameraAccessible);
-            }
-            if (canvas === null || canvas === void 0 ? void 0 : canvas.current) {
-                var playerWidth = ((_a = player === null || player === void 0 ? void 0 : player.current) === null || _a === void 0 ? void 0 : _a.videoWidth) || 1280;
-                var playerHeight = ((_b = player === null || player === void 0 ? void 0 : player.current) === null || _b === void 0 ? void 0 : _b.videoHeight) || 720;
-                var playerAR = playerWidth / playerHeight;
-                var canvasWidth = ((_c = container === null || container === void 0 ? void 0 : container.current) === null || _c === void 0 ? void 0 : _c.offsetWidth) || 1280;
-                var canvasHeight = ((_d = container === null || container === void 0 ? void 0 : container.current) === null || _d === void 0 ? void 0 : _d.offsetHeight) || 1280;
-                var canvasAR = canvasWidth / canvasHeight;
-                var sX = void 0, sY = void 0, sW = void 0, sH = void 0;
-                if (playerAR > canvasAR) {
-                    sH = playerHeight;
-                    sW = playerHeight * canvasAR;
-                    sX = (playerWidth - sW) / 2;
-                    sY = 0;
-                }
-                else {
-                    sW = playerWidth;
-                    sH = playerWidth / canvasAR;
-                    sX = 0;
-                    sY = (playerHeight - sH) / 2;
-                }
-                canvas.current.width = sW;
-                canvas.current.height = sH;
-                var context = canvas.current.getContext('2d');
-                if (context && (player === null || player === void 0 ? void 0 : player.current)) {
-                    context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
-                }
-                var imgData = canvas.current.toDataURL('image/jpeg');
-                return imgData;
+    var captureImage = useCallback(function (type) {
+        var _a, _b, _c, _d;
+        if (numberOfCameras < 1) {
+            throw new Error(errorMessages.noCameraAccessible);
+        }
+        if (canvas === null || canvas === void 0 ? void 0 : canvas.current) {
+            var playerWidth = ((_a = player === null || player === void 0 ? void 0 : player.current) === null || _a === void 0 ? void 0 : _a.videoWidth) || 1280;
+            var playerHeight = ((_b = player === null || player === void 0 ? void 0 : player.current) === null || _b === void 0 ? void 0 : _b.videoHeight) || 720;
+            var playerAR = playerWidth / playerHeight;
+            var canvasWidth = ((_c = container === null || container === void 0 ? void 0 : container.current) === null || _c === void 0 ? void 0 : _c.offsetWidth) || 1280;
+            var canvasHeight = ((_d = container === null || container === void 0 ? void 0 : container.current) === null || _d === void 0 ? void 0 : _d.offsetHeight) || 1280;
+            var canvasAR = canvasWidth / canvasHeight;
+            var sX = void 0, sY = void 0, sW = void 0, sH = void 0, imgData = void 0;
+            if (playerAR > canvasAR) {
+                sH = playerHeight;
+                sW = playerHeight * canvasAR;
+                sX = (playerWidth - sW) / 2;
+                sY = 0;
             }
             else {
-                throw new Error(errorMessages.canvas);
+                sW = playerWidth;
+                sH = playerWidth / canvasAR;
+                sX = 0;
+                sY = (playerHeight - sH) / 2;
             }
-        },
+            canvas.current.width = sW;
+            canvas.current.height = sH;
+            var context = canvas.current.getContext('2d');
+            if (context && (player === null || player === void 0 ? void 0 : player.current)) {
+                context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
+            }
+            switch (type) {
+                case 'imgData':
+                    imgData = context === null || context === void 0 ? void 0 : context.getImageData(0, 0, sW, sH);
+                    break;
+                default: /* base64url */
+                    imgData = canvas.current.toDataURL('image/jpeg');
+                    break;
+            }
+            return imgData;
+        }
+        else {
+            throw new Error(errorMessages.canvas);
+        }
+    }, [canvas.current, player.current, container.current]);
+    useImperativeHandle(ref, function () { return ({
+        takePhoto: function () { return captureImage('base64url'); },
+        takePhotoAsImgData: function () { return captureImage('imgData'); },
         switchCamera: function () {
             if (numberOfCameras < 1) {
                 throw new Error(errorMessages.noCameraAccessible);
