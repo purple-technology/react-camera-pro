@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, useRef, useImperativeHandle, useCallback } from 'react';
 import {
   CameraProps,
   FacingMode,
@@ -41,9 +41,8 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
       numberOfCamerasCallback(numberOfCameras);
     }, [numberOfCameras]);
 
-    useImperativeHandle(ref, () => ({
-      takePhoto: () => {
-        if (numberOfCameras < 1) {
+    const takePhotoCallback = useCallback(() => {
+      if (numberOfCameras < 1) {
           throw new Error(errorMessages.noCameraAccessible);
         }
 
@@ -73,16 +72,24 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
           canvas.current.width = sW;
           canvas.current.height = sH;
 
-          const context = canvas.current.getContext('2d');
-          if (context && player?.current) {
-            context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
-          }
-
-          const imgData = canvas.current.toDataURL('image/jpeg');
-          return imgData;
+          return canvas.current.getContext('2d');
         } else {
           throw new Error(errorMessages.canvas);
         }
+    }, [canvas.current, player.current, container.current]);
+
+    useImperativeHandle(ref, () => ({
+      takePhoto: () => {
+        const context = takePhotoCallback();
+        if (context && player?.current) {
+          context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
+        }
+
+        const imgData = canvas.current.toDataURL('image/jpeg');
+        return imgData;
+      },
+      takePhotoWithContext: () => {
+        return takePhotoCallback();
       },
       switchCamera: () => {
         if (numberOfCameras < 1) {
