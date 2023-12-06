@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useImperativeHandle, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useImperativeHandle } from 'react';
 import {
   CameraProps,
   FacingMode,
@@ -41,8 +41,8 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
       numberOfCamerasCallback(numberOfCameras);
     }, [numberOfCameras]);
 
-    const captureImage = useCallback(
-      (type: 'base64url' | 'imgData') => {
+    useImperativeHandle(ref, () => ({
+      takePhoto: (type?: 'base64url' | 'imgData') => {
         if (numberOfCameras < 1) {
           throw new Error(errorMessages.noCameraAccessible);
         }
@@ -92,12 +92,6 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
           throw new Error(errorMessages.canvas);
         }
       },
-      [canvas.current, player.current, container.current],
-    );
-
-    useImperativeHandle(ref, () => ({
-      takePhoto: () => captureImage('base64url'),
-      takePhotoAsImgData: () => captureImage('imgData'),
       switchCamera: () => {
         if (numberOfCameras < 1) {
           throw new Error(errorMessages.noCameraAccessible);
