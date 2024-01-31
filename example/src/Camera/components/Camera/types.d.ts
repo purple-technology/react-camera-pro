@@ -23,4 +23,6 @@ export declare type CameraType = React.ForwardRefExoticComponent<CameraProps & R
     takePhoto(): string;
     switchCamera(): FacingMode;
     getNumberOfCameras(): number;
+    toggleTorch(): boolean;
+    torchSupported: boolean;
 };

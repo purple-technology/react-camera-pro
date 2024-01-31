@@ -79,6 +79,21 @@ const TakePhotoButton = styled(Button)`
   }
 `;
 
+const TorchButton = styled(Button)`
+  background: url('https://img.icons8.com/ios/50/000000/light.png');
+  background-position: center;
+  background-size: 50px;
+  background-repeat: no-repeat;
+  width: 80px;
+  height: 80px;
+  border: solid 4px black;
+  border-radius: 50%;
+
+  &.toggled {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+`;
+
 const ChangeFacingCameraButton = styled(Button)`
   background: url(https://img.icons8.com/ios/50/000000/switch-camera.png);
   background-position: center;
@@ -133,6 +148,7 @@ const App = () => {
   const camera = useRef<CameraType>(null);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(undefined);
+  const [torchToggled, setTorchToggled] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -155,6 +171,7 @@ const App = () => {
         <Camera
           ref={camera}
           aspectRatio="cover"
+          facingMode="environment"
           numberOfCamerasCallback={(i) => setNumberOfCameras(i)}
           videoSourceDeviceId={activeDeviceId}
           errorMessages={{
@@ -196,6 +213,16 @@ const App = () => {
             }
           }}
         />
+        {camera.current?.torchSupported && (
+          <TorchButton
+            className={torchToggled ? 'toggled' : ''}
+            onClick={() => {
+              if (camera.current) {
+                setTorchToggled(camera.current.toggleTorch());
+              }
+            }}
+          />
+        )}
         <ChangeFacingCameraButton
           disabled={numberOfCameras <= 1}
           onClick={() => {
