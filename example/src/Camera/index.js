@@ -225,7 +225,6 @@ var shouldSwitchToCamera = function (currentFacingMode) { return __awaiter(void 
                 cameras = [];
                 if (!(currentFacingMode === 'environment')) return [3 /*break*/, 2];
                 return [4 /*yield*/, navigator.mediaDevices.enumerateDevices().then(function (devices) {
-                        console.log(devices);
                         var videoDevices = devices.filter(function (i) { return i.kind == 'videoinput'; });
                         videoDevices.forEach(function (device) {
                             var capabilities = device.getCapabilities();

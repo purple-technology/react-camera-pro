@@ -191,7 +191,6 @@ const shouldSwitchToCamera = async (currentFacingMode: FacingMode): Promise<stri
   const cameras: string[] = [];
   if (currentFacingMode === 'environment') {
     await navigator.mediaDevices.enumerateDevices().then((devices) => {
-      console.log(devices);
       const videoDevices = devices.filter((i) => i.kind == 'videoinput');
       videoDevices.forEach((device) => {
         const capabilities = (device as InputDeviceInfo).getCapabilities();
