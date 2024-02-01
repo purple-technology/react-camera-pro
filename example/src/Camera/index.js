@@ -74,7 +74,6 @@ var Cam = styled.video(templateObject_4 || (templateObject_4 = __makeTemplateObj
 });
 var Canvas = styled.canvas(templateObject_5 || (templateObject_5 = __makeTemplateObject(["\n  display: none;\n"], ["\n  display: none;\n"])));
 var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5;
-//# sourceMappingURL=styles.js.map
 
 var Camera = React.forwardRef(function (_a, ref) {
     var _b = _a.facingMode, facingMode = _b === void 0 ? 'user' : _b, _c = _a.aspectRatio, aspectRatio = _c === void 0 ? 'cover' : _c, _d = _a.numberOfCamerasCallback, numberOfCamerasCallback = _d === void 0 ? function () { return null; } : _d, _e = _a.videoSourceDeviceId, videoSourceDeviceId = _e === void 0 ? undefined : _e, _f = _a.errorMessages, errorMessages = _f === void 0 ? {
@@ -326,6 +325,5 @@ var handleError = function (error, setNotSupported, setPermissionDenied) {
         setNotSupported(true);
     }
 };
-//# sourceMappingURL=Camera.js.map
 
 export { Camera };
