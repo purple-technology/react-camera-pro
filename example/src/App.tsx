@@ -209,7 +209,7 @@ const App = () => {
             if (camera.current) {
               const photo = camera.current.takePhoto();
               console.log(photo);
-              setImage(photo);
+              setImage(photo as string);
             }
           }}
         />
