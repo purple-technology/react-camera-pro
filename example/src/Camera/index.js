@@ -84,6 +84,7 @@ var Camera = React.forwardRef(function (_a, ref) {
     } : _f, _g = _a.videoReadyCallback, videoReadyCallback = _g === void 0 ? function () { return null; } : _g;
     var player = useRef(null);
     var canvas = useRef(null);
+    var context = useRef(null);
     var container = useRef(null);
     var _h = useState(0), numberOfCameras = _h[0], setNumberOfCameras = _h[1];
     var _j = useState(null), stream = _j[0], setStream = _j[1];
@@ -126,7 +127,7 @@ var Camera = React.forwardRef(function (_a, ref) {
     }, [torch]);
     useImperativeHandle(ref, function () { return ({
         takePhoto: function (type) {
-            var _a, _b, _c, _d;
+            var _a, _b, _c, _d, _e;
             if (numberOfCameras < 1) {
                 throw new Error(errorMessages.noCameraAccessible);
             }
@@ -152,13 +153,15 @@ var Camera = React.forwardRef(function (_a, ref) {
                 }
                 canvas.current.width = sW;
                 canvas.current.height = sH;
-                var context = canvas.current.getContext('2d');
-                if (context && (player === null || player === void 0 ? void 0 : player.current)) {
-                    context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
+                if (!context.current) {
+                    context.current = canvas.current.getContext('2d', { willReadFrequently: true });
+                }
+                if (context.current && (player === null || player === void 0 ? void 0 : player.current)) {
+                    context.current.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
                 }
                 switch (type) {
                     case 'imgData':
-                        imgData = context === null || context === void 0 ? void 0 : context.getImageData(0, 0, sW, sH);
+                        imgData = (_e = context.current) === null || _e === void 0 ? void 0 : _e.getImageData(0, 0, sW, sH);
                         break;
                     default: /* base64url */
                         imgData = canvas.current.toDataURL('image/jpeg');

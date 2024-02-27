@@ -30,6 +30,7 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
   ) => {
     const player = useRef<HTMLVideoElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
+    const context = useRef<any | null>(null);
     const container = useRef<HTMLDivElement>(null);
     const [numberOfCameras, setNumberOfCameras] = useState<number>(0);
     const [stream, setStream] = useState<Stream>(null);
@@ -96,14 +97,17 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
           canvas.current.width = sW;
           canvas.current.height = sH;
 
-          const context = canvas.current.getContext('2d');
-          if (context && player?.current) {
-            context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
+          if (!context.current) {
+            context.current = canvas.current.getContext('2d', { willReadFrequently: true });
+          }
+
+          if (context.current && player?.current) {
+            context.current.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
           }
 
           switch (type) {
             case 'imgData':
-              imgData = context?.getImageData(0, 0, sW, sH);
+              imgData = context.current?.getImageData(0, 0, sW, sH);
               break;
             default: /* base64url */
               imgData = canvas.current.toDataURL('image/jpeg');
