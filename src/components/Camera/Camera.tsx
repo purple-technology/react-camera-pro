@@ -150,17 +150,16 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
     }));
 
     useEffect(() => {
-      if (!!mounted.current) {
-        initCameraStream(
-          stream,
-          setStream,
-          currentFacingMode,
-          videoSourceDeviceId,
-          setNumberOfCameras,
-          setNotSupported,
-          setPermissionDenied,
-        );
-      }
+      initCameraStream(
+        stream,
+        setStream,
+        currentFacingMode,
+        videoSourceDeviceId,
+        setNumberOfCameras,
+        setNotSupported,
+        setPermissionDenied,
+        !!mounted.current,
+      );
     }, [currentFacingMode, videoSourceDeviceId]);
 
     useEffect(() => {
@@ -231,6 +230,7 @@ const initCameraStream = async (
   setNumberOfCameras: SetNumberOfCameras,
   setNotSupported: SetNotSupported,
   setPermissionDenied: SetPermissionDenied,
+  isMounted: boolean,
 ) => {
   // stop any active streams in the window
   if (stream) {
@@ -262,7 +262,9 @@ const initCameraStream = async (
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then((stream) => {
-        setStream(handleSuccess(stream, setNumberOfCameras));
+        if (isMounted) {
+          setStream(handleSuccess(stream, setNumberOfCameras));
+        }
       })
       .catch((err) => {
         handleError(err, setNotSupported, setPermissionDenied);
@@ -278,7 +280,9 @@ const initCameraStream = async (
       getWebcam(
         constraints,
         async (stream) => {
-          setStream(handleSuccess(stream, setNumberOfCameras));
+          if (isMounted) {
+            setStream(handleSuccess(stream, setNumberOfCameras));
+          }
         },
         (err) => {
           handleError(err as Error, setNotSupported, setPermissionDenied);
