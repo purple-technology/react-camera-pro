@@ -39,13 +39,22 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
     const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
     const [torchSupported, setTorchSupported] = useState<boolean>(false);
     const [torch, setTorch] = useState<boolean>(false);
+    const mounted = useRef(false);
+
+    useEffect(() => {
+      mounted.current = true;
+
+      return () => {
+        mounted.current = false;
+      };
+    }, []);
 
     useEffect(() => {
       numberOfCamerasCallback(numberOfCameras);
     }, [numberOfCameras]);
 
     const switchTorch = async (on = false) => {
-      if (stream && navigator?.mediaDevices) {
+      if (stream && navigator?.mediaDevices && !!mounted.current) {
         const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
         const [track] = stream.getTracks();
         if (supportedConstraints && 'torch' in supportedConstraints && track) {
@@ -141,15 +150,17 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
     }));
 
     useEffect(() => {
-      initCameraStream(
-        stream,
-        setStream,
-        currentFacingMode,
-        videoSourceDeviceId,
-        setNumberOfCameras,
-        setNotSupported,
-        setPermissionDenied,
-      );
+      if (!!mounted.current) {
+        initCameraStream(
+          stream,
+          setStream,
+          currentFacingMode,
+          videoSourceDeviceId,
+          setNumberOfCameras,
+          setNotSupported,
+          setPermissionDenied,
+        );
+      }
     }, [currentFacingMode, videoSourceDeviceId]);
 
     useEffect(() => {
