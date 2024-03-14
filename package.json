@@ -1,7 +1,7 @@
 {
   "name": "CKReiff-react-camera-pro",
   "description": "Universal Camera component for React. Designed with focus on Android, iOS cameras and standard webcams.",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "keywords": [
