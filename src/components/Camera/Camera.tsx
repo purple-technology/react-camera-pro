@@ -30,19 +30,52 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
   ) => {
     const player = useRef<HTMLVideoElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
+    const context = useRef<any | null>(null);
     const container = useRef<HTMLDivElement>(null);
     const [numberOfCameras, setNumberOfCameras] = useState<number>(0);
     const [stream, setStream] = useState<Stream>(null);
     const [currentFacingMode, setFacingMode] = useState<FacingMode>(facingMode);
     const [notSupported, setNotSupported] = useState<boolean>(false);
     const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
+    const [torchSupported, setTorchSupported] = useState<boolean>(false);
+    const [torch, setTorch] = useState<boolean>(false);
+    const mounted = useRef(false);
+
+    useEffect(() => {
+      mounted.current = true;
+
+      return () => {
+        mounted.current = false;
+      };
+    }, []);
 
     useEffect(() => {
       numberOfCamerasCallback(numberOfCameras);
     }, [numberOfCameras]);
 
+    const switchTorch = async (on = false) => {
+      if (stream && navigator?.mediaDevices && !!mounted.current) {
+        const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
+        const [track] = stream.getTracks();
+        if (supportedConstraints && 'torch' in supportedConstraints && track) {
+          try {
+            await track.applyConstraints({ advanced: [{ torch: on }] } as MediaTrackConstraintSet);
+            return true;
+          } catch {
+            return false;
+          }
+        }
+      }
+
+      return false;
+    };
+
+    useEffect(() => {
+      switchTorch(torch);
+    }, [torch]);
+
     useImperativeHandle(ref, () => ({
-      takePhoto: () => {
+      takePhoto: (type?: 'base64url' | 'imgData') => {
         if (numberOfCameras < 1) {
           throw new Error(errorMessages.noCameraAccessible);
         }
@@ -56,7 +89,7 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
           const canvasHeight = container?.current?.offsetHeight || 1280;
           const canvasAR = canvasWidth / canvasHeight;
 
-          let sX, sY, sW, sH;
+          let sX, sY, sW, sH, imgData;
 
           if (playerAR > canvasAR) {
             sH = playerHeight;
@@ -73,12 +106,23 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
           canvas.current.width = sW;
           canvas.current.height = sH;
 
-          const context = canvas.current.getContext('2d');
-          if (context && player?.current) {
-            context.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
+          if (!context.current) {
+            context.current = canvas.current.getContext('2d', { willReadFrequently: true });
           }
 
-          const imgData = canvas.current.toDataURL('image/jpeg');
+          if (context.current && player?.current) {
+            context.current.drawImage(player.current, sX, sY, sW, sH, 0, 0, sW, sH);
+          }
+
+          switch (type) {
+            case 'imgData':
+              imgData = context.current?.getImageData(0, 0, sW, sH);
+              break;
+            default: /* base64url */
+              imgData = canvas.current.toDataURL('image/jpeg');
+              break;
+          }
+
           return imgData;
         } else {
           throw new Error(errorMessages.canvas);
@@ -97,6 +141,12 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
       getNumberOfCameras: () => {
         return numberOfCameras;
       },
+      toggleTorch: () => {
+        const torchVal = !torch;
+        setTorch(torchVal);
+        return torchVal;
+      },
+      torchSupported: torchSupported,
     }));
 
     useEffect(() => {
@@ -108,16 +158,18 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
         setNumberOfCameras,
         setNotSupported,
         setPermissionDenied,
+        !!mounted.current,
       );
     }, [currentFacingMode, videoSourceDeviceId]);
 
     useEffect(() => {
+      switchTorch(false).then((success) => setTorchSupported(success));
       if (stream && player && player.current) {
         player.current.srcObject = stream;
       }
       return () => {
         if (stream) {
-          stream.getTracks().forEach(track => {
+          stream.getTracks().forEach((track) => {
             track.stop();
           });
         }
@@ -149,7 +201,28 @@ export const Camera = React.forwardRef<unknown, CameraProps>(
 
 Camera.displayName = 'Camera';
 
-const initCameraStream = (
+const shouldSwitchToCamera = async (currentFacingMode: FacingMode): Promise<string | undefined> => {
+  const cameras: string[] = [];
+  if (currentFacingMode === 'environment') {
+    await navigator.mediaDevices.enumerateDevices().then((devices) => {
+      const videoDevices = devices.filter((i) => i.kind == 'videoinput');
+      videoDevices.forEach((device) => {
+        const capabilities = (device as InputDeviceInfo).getCapabilities();
+        if (capabilities.facingMode && capabilities.facingMode.indexOf('environment') >= 0 && capabilities.deviceId) {
+          cameras.push(capabilities.deviceId);
+        }
+      });
+    });
+  }
+
+  if (cameras.length > 1) {
+    return cameras.pop();
+  }
+
+  return undefined;
+};
+
+const initCameraStream = async (
   stream: Stream,
   setStream: SetStream,
   currentFacingMode: FacingMode,
@@ -157,18 +230,28 @@ const initCameraStream = (
   setNumberOfCameras: SetNumberOfCameras,
   setNotSupported: SetNotSupported,
   setPermissionDenied: SetPermissionDenied,
+  isMounted: boolean,
 ) => {
   // stop any active streams in the window
   if (stream) {
-    stream.getTracks().forEach(track => {
+    stream.getTracks().forEach((track) => {
       track.stop();
     });
+  }
+
+  let cameraDeviceId;
+
+  const switchToCamera = await shouldSwitchToCamera(currentFacingMode);
+  if (switchToCamera) {
+    cameraDeviceId = switchToCamera;
+  } else {
+    cameraDeviceId = videoSourceDeviceId ? { exact: videoSourceDeviceId } : undefined;
   }
 
   const constraints = {
     audio: false,
     video: {
-      deviceId: videoSourceDeviceId ? { exact: videoSourceDeviceId } : undefined,
+      deviceId: cameraDeviceId,
       facingMode: currentFacingMode,
     },
   };
@@ -176,10 +259,12 @@ const initCameraStream = (
   if (navigator?.mediaDevices?.getUserMedia) {
     navigator.mediaDevices
       .getUserMedia(constraints)
-      .then(stream => {
-        setStream(handleSuccess(stream, setNumberOfCameras));
+      .then((stream) => {
+        if (isMounted) {
+          setStream(handleSuccess(stream, setNumberOfCameras));
+        }
       })
-      .catch(err => {
+      .catch((err) => {
         handleError(err, setNotSupported, setPermissionDenied);
       });
   } else {
@@ -192,10 +277,12 @@ const initCameraStream = (
     if (getWebcam) {
       getWebcam(
         constraints,
-        stream => {
-          setStream(handleSuccess(stream, setNumberOfCameras));
+        async (stream) => {
+          if (isMounted) {
+            setStream(handleSuccess(stream, setNumberOfCameras));
+          }
         },
-        err => {
+        (err) => {
           handleError(err as Error, setNotSupported, setPermissionDenied);
         },
       );
@@ -208,7 +295,7 @@ const initCameraStream = (
 const handleSuccess = (stream: MediaStream, setNumberOfCameras: SetNumberOfCameras) => {
   navigator.mediaDevices
     .enumerateDevices()
-    .then(r => setNumberOfCameras(r.filter(i => i.kind === 'videoinput').length));
+    .then((r) => setNumberOfCameras(r.filter((i) => i.kind === 'videoinput').length));
 
   return stream;
 };
