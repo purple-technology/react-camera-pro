@@ -253,8 +253,6 @@ const initCameraStream = async (
     video: {
       deviceId: cameraDeviceId,
       facingMode: currentFacingMode,
-      width: { ideal: 1920 },
-      height: { ideal: 1920 },
     },
   };
 
